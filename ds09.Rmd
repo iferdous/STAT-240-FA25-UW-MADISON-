@@ -1,0 +1,81 @@
+---
+title: "Discussion 9"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Review notes
+
+As usual please review the probability & inference sections we covered this past week. Make sure you understand each of the following key concepts:
+
+ - CDFs and inverse CDFs
+ - Normal functions:
+   - Parameters
+   - PDF function form
+   - E, Var, SD
+   - *norm functions
+   - QQ plots
+   - Z-scores
+ - Normal approximation of binomial:
+   - Condition for usage
+   - How to apply
+   - Continuity correction
+ - Roughly what the LLN means
+ - Formula and interpretation of confidence intervals
+
+## Probability practice
+
+1. Give 2 examples of possible normal distributions
+```{r}
+
+# Heights of adult men
+# Birth weights of babies 
+
+```
+
+
+2. Practice plotting the normal PDF, CDF, and inverse CDF functions (you can borrow code from lecture)
+
+```{r}
+
+x <- seq(-4, 4, length=100)
+
+# PDF plot
+plot(x, dnorm(x), type='l', main='Normal PDF', ylab='Density', xlab='x')
+
+# CDF plot
+plot(x, pnorm(x), type='l', main='Normal CDF', ylab='Probability', xlab='x')
+
+# Inverse CDF plot
+p <- seq(0, 1, length=100)
+plot(p, qnorm(p), type='l', main='Normal Inverse CDF', ylab='Quantile', xlab='Probability')
+
+
+
+```
+
+
+3. For each of the following statements, think about them carefully and respond briefly to each.
+
+   a. What is the support (i.e. set of possible outcomes with nonzero probability) of a normal RV?
+   b. What does the empirical rule say?
+   c. What are the EV and SD of a normal?
+   d. How do you read a QQ plot, what do you look for?
+   e. What does standard normal mean?
+   f. What's the formula for computing a Z-score of a point?
+   g. When and how can you approximate a binomial with a normal?
+   h. How do you tell which direction to ±0.5 when applying continuity correction?
+   i. What's the general form of the formula for a confidence intervaL?
+   j. What exactly does "95% confidence" mean?

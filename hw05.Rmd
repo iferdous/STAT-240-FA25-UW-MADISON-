@@ -1,0 +1,208 @@
+---
+title: "Homework 5"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Q1
+
+The chunk below downloads a cleaned data frame of historical Madison temperature data from the [UW climatology office](https://climatology.nelson.wisc.edu/first-order-station-climate-data/madison-climate/historical-temperatures).
+
+```{r}
+madison = read_csv("https://data.rcc-acis.org/StnData?sid=MSNthr&sdate=por&edate=por&elems=avgt,maxt,mint&output=csv",
+                   skip = 1, col_names = c("date","tavg","tmax","tmin")) %>% arrange(desc(date))
+madison
+```
+
+Answer the following data exploration questions:
+
+ - What are the variables available in this dataset?
+ - How many rows are there?
+ - What's the range of the dataset, i.e. what's the first and last date?
+ - Are any dates completely missing from the dataset?
+ - Are there any rows with missing values? If yes **print all rows with any missing values**. Do you feel comfortable dropping these rows?
+ 
+ 
+```{r}
+
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+
+
+#Importing dataset : 
+madison = read_csv(
+  "https://data.rcc-acis.org/StnData?sid=MSNthr&sdate=por&edate=por&elems=avgt,maxt,mint&output=csv",
+  skip = 1,
+  col_names = c("date", "tavg", "tmax", "tmin")
+) %>% arrange(desc(date))
+madison
+
+# to check the amount of rows and columns
+glimpse(madison)
+
+# we can also use :
+colnames(madison) # 4 variables in the dataset.
+
+# finding the date range : 
+madison$date %>% range()
+
+#checking if there are any missing dates :
+any(diff(sort(madison$date)) != 1)
+
+
+#checking if there are any rows w/ missing values:
+
+madison %>% filter(is.na(tavg) | is.na(tmax) | is.na(tmin))
+
+# dropping missing rows:
+madison_clean <- madison %>% drop_na()
+
+
+
+```
+ 
+
+
+## Q2
+
+In any case, we need to work with all columns of this data frame, and the number of rows with missing values is small, so **drop all rows with any missing values**, and use this for the rest of the assignment, where we will practice grouping, summarizing, and visualizing in different ways.
+
+First, group by year and find the average tavg in each year. Plot this yearly average temperature vs time using a connected-line plot, with a smoothed trend curve (with the margin-of-error shading removed) overlaid on top.
+
+As usual, briefly comment on the plot. What do you observe?
+
+
+```{r}
+# redropping missing values:
+madison_clean <- madison %>% drop_na()
+
+#grouping by year
+madison_yearly <- madison_clean %>%
+  mutate(year = year(date)) %>%
+  group_by(year) %>%
+  summarize(avg_tavg = mean(tavg, na.rm = TRUE))
+
+#plotting the yearly average:
+
+
+ggplot(madison_yearly, aes(x = year, y = avg_tavg)) +
+    geom_line(color = "blue") + # connected line
+    geom_smooth(se = FALSE, color = "red", linetype = "solid") +  # trend curve 
+    labs(
+        title = "Yearly Avg Temp in Madison",
+        x = "Year",
+        y = "Average Temperature (°F)"
+    ) 
+
+# this plot shows that the yearly average temperature in madison has fluctuated over time, but there is also an upwards trend in recent decades. It shows a gradual warming trend. 
+
+```
+
+
+
+
+## Q3
+
+Next, let's group by month and find the average tavg by just month (i.e. average over all Januaries, and all Februaries, etc.). Plot these monthly averages in a bar plot, and again overlay a smoothed trend curve on top.
+
+As usual, briefly comment on the plot. What do you observe?
+
+```{r}
+
+# grouping by month and finding average by month:
+
+madison_monthly <- madison_clean %>%
+  mutate(month = month(date, label = TRUE, abbr = TRUE)) %>%  
+  group_by(month) %>%
+  summarize(avg_tavg = mean(tavg, na.rm = TRUE))
+
+# plotting :
+
+ggplot(madison_monthly, aes(x = month, y = avg_tavg, group = 1)) +
+  geom_col(fill = "blue") + # bar plot
+  geom_smooth(se = FALSE, color = "red", size = 1) +  
+  labs(
+    title = "Avg Monthly Temperature in Madison",
+    x = "Month",
+    y = "Average Temperature (°F)"
+  ) 
+
+# the bar plot shows a clear seasonal pattern in Madison. average temperatures are lowest in jan and feb, then they rise steadily through the spring, peaking in July before declining again into fall and winter. 
+
+```
+
+
+
+
+## Q4
+
+Let's make a similar plot to the average-by-date plot shown on [this page] where the average is taken over each calendar date. This is slightly more complicated, and as far as I can find, the best way of doing this is by changing all the years to the same year in a new "fake date" column and averaging over that. Here are some hints:
+
+ 1. Create a new `fake_date` column, which is the same as `date` except the year component of every single observation is changed to be the same year (e.g. make every date in the new column have year 2024).
+ 2. Now, group by the new `fake_date` column, and compute for each date the mean `tavg`, mean `tmax`, and mean `tmin` for each date. This will gives us the average daily avg, average daily high, and average daily low temperatures for each date.
+ 3. At this stage, **print out the first several rows of your data frame so we can see your output!** Helps with grading.
+ 4. Let's first plot the average daily avg temperatures. Do this with a connected line plot vs your fake date.
+ 5. Then, under your line plot, add a new plot type `geom_ribbon()` with the aesthetics `ymin` and `ymax` set to your averaged daily low & high values. Also set a low opacity for this layer. This will create a shaded region around the daily avg which shows on average what the daily high/low values are.
+ 6. Now, let's fix the date axis by printing divisions nicely and hiding the fake years. You can easily do this by adding something like the following as a layer:  
+    ` + scale_x_date(date_breaks = "1 month", date_labels = "%b%e", expand = 0.02) `
+ 7. Finally, don't forget to annotate your plot by adding appropriate title/labels.
+
+If you followed all steps correctly, you should end up with something that looks like this: <https://i.imgur.com/VgsgSr1.png>
+
+
+```{r}
+
+
+# creating a "fake date" column with year set to 2024:
+
+madison_daily <- madison_clean %>%
+  mutate(fake_date = make_date(2024, month(date), day(date)))  # all years set to 2024
+
+
+# grouping by fake date and computing mean:
+
+madison_daily_avg <- madison_daily %>%
+  group_by(fake_date) %>%
+  summarize(
+    mean_tavg = mean(tavg, na.rm = TRUE),
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    mean_tmin = mean(tmin, na.rm = TRUE)
+  )
+
+
+#print the rows :
+head(madison_daily_avg)
+
+# plotting :
+
+
+ggplot(madison_daily_avg, aes(x = fake_date)) +
+    geom_ribbon(aes(ymin = mean_tmin, ymax = mean_tmax),
+                fill = "lightblue") +
+    geom_line(aes(y = mean_tavg), color = "red", size = 1) +  scale_x_date(date_breaks = "1 month", date_labels = "%b%e", expand = 0.02) + 
+    labs(
+        title = "Average Daily Temperatures in Madison, WI",
+        x = "Date (Month-Day)",
+        y = "Temperature (°F)"
+    )
+
+
+#the plot shows us clear seasonal variation in madisons climate. average daily temperature start low in the winter, it rises steadily through the spring, peaks in mid july, and then declines throughout the fall. the shaded blue represents the average range between highs and lows, the range is widest in the summer and narrowest in the winter. 
+
+
+```
+
+

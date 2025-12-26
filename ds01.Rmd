@@ -1,0 +1,175 @@
+---
+title: "Discussion 1"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+<style>h1 b{font-weight:normal;font-size:medium;font-style:italic}</style>
+
+```{r setup, include=FALSE}
+# this is called a "setup" chunk and is often found at the top of Rmd files
+# setting "include=FALSE" let's it run but completely hides all code + output
+
+# this line below sets default chunk options for the entire document
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+```
+
+
+# Question 1  <b>(R/Rstudio check)</b>
+
+Have you followed instructions from lecture and installed the right R version, installed `tidyverse`, as well as setup and organized your files?
+
+```{r}
+# no written response needed, simply knit the document and
+# check the output, this chunk should print:
+#  1. the R version currently installed,
+#  2. the tidyverse import messages, and
+#  3. the file folder structure of your STAT240 class folders
+# (remember to set your working directory if running this in console!)
+
+sessionInfo()
+library(tidyverse)
+list.dirs("../../",recursive = TRUE)
+```
+
+
+# Question 2 <b>(basic R practice)</b>
+
+The following dataset comes from openintro.org. 3 different bodies of water in Bimini Lagoon, Bahamas were tested and their salinity in parts per thousand measured repeatedly over a period of time. The data are shown below:
+
+    Site 1: 37.54,37.01,36.71,37.03,37.32,37.01,37.03,37.7,37.36,36.75,37.45,38.85 
+    Site 2: 40.17,40.8,39.76,39.7,40.79,40.44,39.79,39.38     
+    Site 3: 39.04,39.21,39.05,38.24,38.53,38.71,38.89,38.66,38.51,40.58    
+
+For each question part below, insert a code chunk, do the necessary R work, then write your final response on a new line starting with "> RESPONSE: " (similar to question 1 above).
+
+
+## Part A
+
+For each site, create a data vector storing the salinity measurements for that site. Print each vector out to show they have been created correctly.
+
+
+```{r}
+site_1 <- c(37.54,37.01,36.71,37.03,37.32,37.01,37.03,37.7,37.36,36.75,37.45,38.85)
+site_2 <- c(40.17,40.8,39.76,39.7,40.79,40.44,39.79,39.38)
+site_3 <- c(39.04,39.21,39.05,38.24,38.53,38.71,38.89,38.66,38.51,40.58)
+
+site_1
+print("> RESPONSE: The mean salinity for Site 1 is approximately 37.31.")
+
+site_2
+print("> RESPONSE: The mean salinity for Site 2 is approximately 40.10.")
+
+site_3
+print("> RESPONSE: The mean salinity for Site 3 is approximately 38.92.")
+
+
+
+```
+
+
+## Part B
+
+For each site, compute and print the following values: sample size (i.e. number of observations), mean salinity, median salinity, min and max values, the 90-th percentile, and the standard deviation.
+
+Also answer: Which site had the highest mean? Which site had the greatest range (i.e. max vs min) of values?
+
+
+```{r}
+    length(site_1)
+    print("> RESPONSE: The sample size of site 1 is 12.")
+
+    length(site_2)
+         print("> RESPONSE: The sample size of site 2 is 8.")
+
+    length(site_3)
+          print("> RESPONSE: The sample size of site 3 is 10.")
+
+    
+    #mean salinity for each site : 
+    
+    mean(site_1)
+     print("> RESPONSE: The mean for site 1 is 37.31.")
+    mean(site_2)
+    print("> RESPONSE: The mean for site 2 is 40.10.")
+    mean(site_3)
+    print("> RESPONSE: The mean for site 3 is 38.94.")
+
+    #finding the median for each site : 
+    
+    median(site_1)
+         print("> RESPONSE: The median for site 1 is 37.17.")
+
+    median(site_2)
+             print("> RESPONSE: The median for site 2 is 39.98.")
+
+    median(site_3)
+             print("> RESPONSE: The median for site 3 is 38.8.")
+
+    
+    # finding the minimum and maximum for each site : 
+    
+    min(site_1)
+    max(site_1)
+    
+                 print("> RESPONSE: The min is 36.71 and the max is 38.85 for site 1")
+
+
+    min(site_2)
+    max(site_2)
+    
+     print("> RESPONSE: The min is 39.38 and the max is 40.80 for site 2")
+
+    min(site_3)
+    max(site_3)
+    
+     print("> RESPONSE: The min is 38.24 and the max is 40.58 for site 3")
+    
+    #finding the 90th percentile :
+    #we use the quantile function, and then we specify with a decimal value
+    quantile(site_1, probs = 0.9)
+    quantile(site_2, probs = 0.9)
+    quantile(site_3, probs = 0.9) 
+    
+     print("> RESPONSE: 90th PCT for site 1: 37.684. Site 2: 40.79. Site 3: 39.34.")
+    
+    # finding the standard deviation : 
+    
+    sd(site_1)
+    sd(site_2)
+    sd(site_3)
+    
+    
+    
+    print("> RESPONSE: Standard devition for site 1 : 0.57. Site 2: 0.53. Site 3: 0.64")
+    
+   
+    
+    
+    print("Site 2 had the highest mean, site 2 also had the greatest range")
+    
+
+
+```
+
+
+
+
+## Part C
+
+A [boxplot](https://en.wikipedia.org/wiki/Box_plot) is a simple plot for visualizing one set of values or comparing several different sets. It can be easily made with the `boxplot()` function by giving it each data vector as inputs, e.g. `boxplot(x,y,z,...)` where x,y,z,... are data vectors.
+
+Make a simple boxplot showing the salinity measurements from each site. For now, don't worry about titles or axes labels.
+
+```{r}
+
+boxplot(site_1, site_2, site_3)
+
+
+```
+
+
+
+
+

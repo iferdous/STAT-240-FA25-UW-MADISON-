@@ -1,0 +1,117 @@
+---
+title: "Discussion 5"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+```
+
+
+## Review notes
+
+For the data transform and grouping/regrouping chapters we covered this past week, again read through the notes and additional examples if you haven't already and run them for more R practice (no need to show work for this).
+
+ - Show an example below in an R chunk for each of the following:
+   1. Use mutate to add a useful and interesting column to a dataset,
+   2. Use summarize to summarize a dataset into some useful and interesting columns,
+   3. Use mutate with a group by to add a useful and interesting column that requires some group-wise summary operation,
+   4. Use summarize with a group by to add a useful and interesting column that requires some group-wise summary operation,
+   5. Use filter and arrange to subset and sort rows in a data frame,
+   6. Use slice min and slice max to extract some rows in a data frame to show extreme values in a column,
+   7. Show a computation that requires 2 uses of group by (e.g. grouping, summarizing, then regrouping).
+
+
+
+
+
+## Data exploration
+
+Continue with the fertility dataset introduced in class. Try applying everything you've learned so far to do the following:
+
+ 1. Print a summary of the dataset showing, for each region, the number and percent of countries in each income group (percents should add to 100 in each region). Plot the percentages in a stacked bar plot, showing region on x, percent on y, and filling each bar by income group. Comment briefly on the plot.
+
+ 2. Filter to only the most recent year, then make faceted subplots showing a separate histogram of countries' fertility rates for each region.
+
+ 3. Alternatively, instead of faceted histograms, try making a horizontal boxplot of the most recent year's rates with a box for each region. How do these two plots compare visually, and which do you prefer?
+
+ 4. Make another original summary + visualization of your choice. Briefly explain your choice and comment on your plot.
+
+```{r}
+# import dataset:
+fertility <- read_csv("https://bwu62.github.io/stat240-revamp/data/fertility.csv")
+fertility
+
+# show # and percentage of countries in each income group per region.
+region_income_summary <- fertility %>%
+  group_by(region, income_group) %>%
+  summarize(num_countries = n_distinct(country)) %>%
+  group_by(region) %>%
+  mutate(percent = 100 * num_countries / sum(num_countries))
+
+region_income_summary
+
+#plotting :
+
+ggplot(region_income_summary, aes(x = region, y = percent, fill = income_group)) +
+  geom_col() +
+  labs(
+    title = "Distribution of Income Groups by Region",
+    x = "Region",
+    y = "Percent of Countries"
+  ) 
+
+# This plot shows how income levels are distributed across world regions.
+# Regions like Europe have a higher percentage of high-income countries, while Africa has mostly low- and lower-middle-income nations.
+
+
+colnames(fertility)
+
+# filter most recent years
+ggplot(fertility_recent, aes(x = fertility)) +
+  geom_histogram(binwidth = 0.3, fill = "purple", color = "white") +
+  facet_wrap(~region) +
+  labs(
+    title = paste("Distribution of Fertility Rates by Region in", latest_year),
+    x = "Fertility Rate (births per woman)",
+    y = "Number of Countries"
+  ) 
+
+# Each subplot shows the spread of fertility rates across countries within a region.
+
+ggplot(fertility_recent, aes(y = region, x = fertility_rate, fill = region)) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(
+    title = paste("Fertility Rates by Region in", latest_year),
+    x = "Fertility Rate (births per woman)",
+    y = "Region"
+  ) 
+
+# provides a clearer summary of the median, spread, and outliers by region
+
+ggplot(fertility_region_trend, aes(x = year, y = avg_fertility, color = region)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Average Fertility Rate Trends by Region (Over Time)",
+    x = "Year",
+    y = "Average Fertility Rate"
+  ) 
+
+ # shows the long-term decline in fertility rates across all regions
+
+
+
+
+
+```
+

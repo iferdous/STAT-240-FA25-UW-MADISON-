@@ -1,0 +1,195 @@
+---
+title: "Homework 4"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+**Remember to appropriately annotate ALL plots**, not just for this assignment but every plot you make in this course and beyond. You will not be reminded to do this in future assignments; it's your responsibility to remember to continue doing this!
+
+
+# Q1
+
+Use the built-in `iris` dataset, which contains measurements of several different parts on a sample of 3 species of iris flowers.
+
+```{r}
+# load iris into environment as a tibble and print first 10 lines
+# for more info on the data, run ?iris in your console
+
+#Load necessary libraries in :
+library(e1071)
+library(ggplot2)
+library(dplyr) 
+
+# loading in dataset :
+iris = as_tibble(iris)
+print(iris, n = 10)
+
+
+#scatter plot of sepal width vs pedal length by species:
+
+
+ggplot(data = iris, aes(x = Petal.Length, y = Sepal.Width, color = Species)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Sepal Width vs Petal Length by Species",
+    x = "Petal Length",
+    y = "Sepal Width",
+    color = "Species"
+  )
+
+#For Setosa, the petal length is very short  (1-2 cm), while the sepal width is reatively large(3-4.5 cm). slope is upwards.
+# For Versicolor, petal length ranges from 3-5 cm, and sepal width is more moderate(2-3.2 cm).upward sloping.
+# For Virginica, petal length is the largest (5-7 cm), and sepal width centers around 2-3.2 cm. slope is upward. 
+```
+
+
+Make a scatter plot of sepal width vs petal length (note we always specify variables in the order Y vs X), using both the colors and shapes of points to differentiate species. Also add to each species subgroup its own line of best fit with no shaded error band around it (see section 6.4.2 in notes for example).
+
+Briefly comment on the plot. What patterns do you notice, and are they similar or different between species? Does there seem to be a relationship between the two numeric variables? Does it seem like it was important to separate the difference species in the plot? Why or why not?
+
+
+# Q2
+
+Continuing with the `iris` dataset from the previous question, make faceted subplots, one for each species, showing a histogram of sepal width on each.
+
+Please make sure the facets are setup such that it is as easy as possible to visually compare the distributions of each species and tell at a glance how the centers/spreads of each compares with the others.
+
+Again, briefly comment on the plot. In particular, visually estimate approximately what the median of each species is. Does there seem to be a strong difference in sepal width between different species?
+
+
+```{r}
+
+# Faceted histogram of sepal width by species
+ggplot(data = iris, aes(x = Sepal.Width, fill = Species)) +
+  geom_histogram(binwidth = 0.2, color = "black") +
+  facet_wrap(~ Species, nrow = 1, scales = "fixed") +
+  labs(
+    title = "Distribution of Sepal Width by Species",
+    x = "Sepal Width (cm)",
+    y = "Count"
+  )
+
+# The setosa distribution in centered around 3.4-3.5 cm. the data looks relatively symmetric, and its approximate median is about 3.4 cm. 
+# versicolor, the distribution function is shifted lower, mostly between 2.5-3 cm, with the median being around 2.8 cm. 
+#virginica, the distribution is between the other 2 specifies, centered around 3.0 cm 
+# setosa has the widest sepals on average, versicolor has the narrowest sepals, verginica is in between but closer to versicolor.  
+
+```
+
+
+
+# Q3
+
+Continuing with the iris dataset, since we have the width and length of both petals and sepals for each species of iris, we can very roughly approximate the sepal and petal surface areas for each observation by using the diameter-based formula for the area of an ellipse:
+
+    area = length * width * (pi/4)
+
+Using a pipe and only a single call to mutate, add two columns to the iris dataset, one for the computed sepal area and one for the computed petal area using the formula above.
+
+At this point, **please print no more than the first 10 rows of the data frame** so we can see and check your results (do NOT print every single row).
+
+Make a plot showing petal area vs sepal area, again using color and shape to differentiate each species. If you feel it's appropriate, feel free to add other components to your plot or not. Briefly comment on the plot, again noting anything of interest or concern.
+
+
+```{r}
+
+
+iris_tibble <- iris %>%
+  as_tibble() %>%
+  mutate(
+    Sepal.Area = Sepal.Length * Sepal.Width * (pi / 4),
+    Petal.Area = Petal.Length * Petal.Width * (pi / 4)
+  )
+
+print(iris, n = 10)
+
+
+# plotting the petal area vs sepal area :
+
+ggplot(iris_tibble, aes(x = Sepal.Area, y = Petal.Area, color = Species, shape = Species)) +
+  geom_point(size = 2.5, alpha = 0.8) +
+  labs(
+    title = "Petal Area vs Sepal Area by Species",
+    x = "Sepal Area (cm²)",
+    y = "Petal Area (cm²)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  theme_minimal()
+
+
+# The plot shows distinct clusters for each specifies. Setosa flowers tend to form a group with much smaller petal areas than the others. if sepal and petal areas for individuals species visibly overlap, that could mean there is less discriminability, but for this data, the clusteting is generally clear. 
+
+```
+
+
+
+
+
+# Q4
+
+Let's switch over to the `airquality` dataset, another built-in dataset with daily air quality measurements taken in New York between May-Sep 1973.
+
+```{r}
+# load airquality into environment as a tibble and print first 10 lines
+# for more info on the data, run ?airquality in your console
+airquality = as_tibble(airquality)
+print(airquality, n = 10)
+```
+
+Using pipes and a single call to mutate, add a proper date column with the date corresponding to each row of the data frame.
+
+Again at this point, **please print no more than the first 10 rows of the data frame** so we can see and check your results (do NOT print every single row).
+
+Then, make 2 different line plots, one showing the ozone measurements vs date, the other showing temp vs date. By line plot, we mean `geom_line()`, showing the day-to-day fluctuations of each. On top of each, also add a smoothed curve (use the default LOESS smoothing, do not change the method argument).
+
+Again, briefly comment on the plot, again noting anything of interest or concern.
+
+```{r}
+
+
+airquality <- as_tibble(airquality) %>%
+  mutate(Date = as.Date(paste(1973, Month, Day, sep = "-")))
+
+# Print first 10 rows to check the new date column
+print(airquality, n = 10)
+
+
+# Plot ozone vs date with LOESS smoothing
+p1 <- ggplot(airquality, aes(x = Date, y = Ozone)) +
+  geom_line(na.rm = TRUE) +
+  geom_smooth(se = TRUE, na.rm = TRUE) +
+  labs(title = "Ozone Levels vs Date",
+       y = "Ozone (ppb)")
+
+# plotting the temperature vs date :
+
+p2 <- ggplot(airquality, aes(x = Date, y = Temp)) +
+  geom_line() +
+  geom_smooth(se = TRUE) +
+  labs(title = "Temperature vs Date",
+       y = "Temperature (F)")
+
+# displaying the plots : 
+  
+print(p1)
+print(p2)
+
+#As we can see, the ozone shows daily fluctuations with some missing data (gaps) which is indicated due to missing values. the loess smoother also highlights seasonal trends with the ozone levels generally rising than falling throught the summer.
+#The temperature plot shows a clearer trend thats upward peaking in mid-summer with less noise than ozone. the loess smoooth curve shows the seasonal temperatire pattern expected from may to september.
+
+```
+

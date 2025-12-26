@@ -1,0 +1,78 @@
+---
+title: "Discussion 11"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Review notes
+
+As usual please review the inference sections we covered this past week. Make sure you understand each of the following key concepts:
+
+ - Two proportions inference methods
+   - Confidence interval
+   - Hypothesis testing
+   - R methods for both
+
+## Inference
+
+1. What's the difference between one and two proportions methods?
+
+```{r}
+
+# One proportion method compares a single sample proportion to a known or hypothesized value (like testing if a single group's success rate meets a standard).
+
+# Two proportions method compares the proportions from two independent samples to see if there's a difference between them
+
+```
+
+
+2. For two proportions inference,
+
+   a. What conditions need to be satisfied for hypothesis testing?
+   b. Why do we compute a "pooled" sample proportions p-bar?
+   c. How is the continuity correction applied to both the interval and testing methods?
+   
+```{r}
+
+#2a. Both samples must be random and independent, Each sample should have at least 10 successes and 10 failures, The variable should be binary (success/failure)
+
+#2b. The pooled proportion combines data from both samples to estimate a common population proportion, which gives a more accurate standard error under the null hypothesis that the proportions are equal.
+
+#2c. The continuity correction adjusts for using a continuous normal distribution to approximate a discrete binomial distribution.  more conservative by slightly reducing the difference between sample proportions for both confidence intervals and hypothesis tests, especially in small samples.
+
+
+```
+   
+
+3. For each of the following statements, think about them carefully and respond briefly to each.
+
+   a. What's the difference between the proportions and means based approaches? How can you tell which one should be used for a problem?
+   b. How does the population model differ between a proportions vs means based problem?
+   c. What are the reference distributions used for a proportions vs means based problem?
+   d. Briefly explain what a t-distribution is/looks like, what parameter(s) it requires, and how it's used in means inference.
+   e. Specifically what causes a t-distribution to be necessary vs a normal?
+   f. Are t-distribution critical values always less than or always greater than the same level normal critical value, or does it depend on the circumstances?
+   g. What function is used in R to do t-based intervals & testing and what arguments does it take?
+   h. How do you know what degrees of freedom to use for a t-distribution for a given problem?
+
+## Bonus! Cauchy & LLN
+
+As a bonus exercise just for fun, follow a similar process as Q3 from HW9 but this time show the LLN breaks for a t-distribution with 1 degree of freedom, also known as the Cauchy distribution.
+
+ a. Use `rt()` with `df` set to 1 generate a large sample of observations (at least 10,000, ideally up to 100,000) and save to a data frame.
+ b. Add in a column of row numbers 1,2,...,n counting up to your sample size, as well as another column of the cumulative sums of the generated Cauchy observations divided by the row numbers, which gives the running average of the sample up to a given row.
+ c. Plot this running average vs n and add a log scale to the sample size axis. Also remember to add proper annotations to your plot.
+
+What do you notice? Do the results converge nicely as we previously saw for other distributions? Try running the above several times, e.g. by copying the chunk exactly to another duplicate chunk to get another run of the simulation. Do the results closely follow or resemble each other?

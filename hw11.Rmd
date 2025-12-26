@@ -1,0 +1,164 @@
+---
+title: "Homework 11"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Q1
+
+The following data is from a series of chimp experiments in which each chimp was placed into an enclosure either next to a partner chimp or not next to a partner chimp. Then, each subject was given the option to press a selfish button which would only give themselves food, or a prosocial button which would also give the partner food. The data below shows the proportion of trials in each scenario where the prosocial choice was observed. For each chimp, the partner scenario had 90 trials and the no-partner scenario had 30 trials.
+
+    chimp partner no-partner
+    A     66.7%   53.3%
+    B     66.7%   53.3%
+    C     63.3%   56.7%
+    D     55.6%   26.7%
+    E     53.3%   40.0%
+    F     52.2%   46.7%
+
+a. For each chimp, construct a 95% confidence interval for how much more likely they were to choose the prosocial option when a partner was present than when they were not.
+
+b. For each chimp, run an α=0.05 level hypothesis test to see if there was a significantly higher chance of prosocial choice with a partner present than without.
+
+c. For each scenario (with/without partner), combine the data across all chimps by adding counts of all prosocial choices together (find these by multiplying the percents with n). Show the overall percent of prosocial choice in each scenario.
+
+d. Repeat a,b on the overall combined scenario. Are the results what you'd expect?
+
+```{r}
+
+# setting up the data : 
+
+ partner_trials <- 90
+nopartner_trials <- 30
+data <- data.frame(
+  chimp = c("A", "B", "C", "D", "E", "F"),
+  partner_prop = c(0.667, 0.667, 0.633, 0.556, 0.533, 0.522),
+  nopartner_prop = c(0.533, 0.533, 0.567, 0.267, 0.400, 0.467)
+)
+
+
+# calculating confidence intervals :
+
+z <- 1.96 # for 95% CI
+data <- data %>%
+  mutate(
+    diff = partner_prop - nopartner_prop,
+    se = sqrt(partner_prop*(1-partner_prop)/partner_trials + nopartner_prop*(1-nopartner_prop)/nopartner_trials),
+    lower = diff - z*se,
+    upper = diff + z*se
+  )
+print(data[, c("chimp", "diff", "lower", "upper")])
+
+
+#1b, hypothesis test for each chimp 
+
+# z test for difference in proportions
+data <- data %>%
+  mutate(
+    zscore = diff / se,
+    pvalue = 1 - pnorm(zscore)
+  )
+print(data[, c("chimp", "zscore", "pvalue")])
+
+
+#1c combining the data across chimps 
+
+partner_total_trials <- 6 * partner_trials
+nopartner_total_trials <- 6 * nopartner_trials
+
+# Get total prosocial counts
+
+partner_prosocial <- sum(data$partner_prop * partner_trials)
+
+nopartner_prosocial <- sum(data$nopartner_prop * nopartner_trials)
+
+partner_percent <- partner_prosocial / partner_total_trials
+
+nopartner_percent <- nopartner_prosocial / nopartner_total_trials
+
+partner_percent # overall percent with partner
+
+nopartner_percent # overall percent with no partner
+
+# 1d, confidence intervals and test for combined scenario : 
+
+diff <- partner_percent - nopartner_percent
+se_combined <- sqrt(
+  partner_percent*(1-partner_percent)/partner_total_trials +
+  nopartner_percent*(1-nopartner_percent)/nopartner_total_trials
+)
+lower <- diff - z * se_combined
+upper <- diff + z * se_combined
+zscore <- diff / se_combined
+pvalue <- 1 - pnorm(zscore)
+
+cat("Difference:", diff, "\n")
+cat("95% CI:", lower, "to", upper, "\n")
+cat("Z-score:", zscore, "\n")
+cat("P-value:", pvalue, "\n")
+
+
+# this is exactly what we'd expect, combining all the chimp data increases statistical power, so the overall test is more likely to detect a significant difference, if the group matches the individual trends, this is exactly what we'd expect. 
+
+
+
+```
+
+
+## Q2
+
+Look at the `mpg` column of the built-in `mtcars` dataset, which has the fuel efficiency values of a small sample of popular American cars from the 70s. Using the t-based methods discussed on Friday, do the following:
+
+a. Find a 95% confidence interval for the average fuel efficiency of popular cars in the 70s.
+
+b. Suppose an earlier survey done in the 60s found the average car had an efficiency of 18mpg. Based on your sample, does it appear the average 70s car has improved its fuel efficiency compared to the earlier survey?
+
+
+```{r}
+
+
+# 1a, 
+
+# load in the dataset :
+data(mtcars)
+
+# calculating the mean, standard error
+mean_mpg <- mean(mtcars$mpg)
+se_mpg <- sd(mtcars$mpg) / sqrt(length(mtcars$mpg))
+df <- length(mtcars$mpg) - 1
+
+# computing the t value : 
+
+t_crit <- qt(0.975, df)
+
+# construct the the confidence interval : 
+ci <- mean_mpg + c(-1, 1) * t_crit * se_mpg
+cat(sprintf("95%% CI for mean MPG: [%.2f, %.2f]\n", ci[1], ci[2]))
+
+
+#b.) testing the hypothesis
+
+# One-sample t test
+t_test <- t.test(mtcars$mpg, mu=18, alternative="greater")
+print(t_test)
+
+
+
+
+
+
+
+```
+

@@ -1,0 +1,34 @@
+---
+title: "Discussion 12"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Review notes
+
+As usual please review the inference sections we covered this past week. Make sure you understand each of the following key concepts:
+
+
+
+
+
+
+
+
+
+
+
+```
+

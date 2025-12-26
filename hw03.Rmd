@@ -1,0 +1,248 @@
+---
+title: "Homework 3"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+# Q1
+
+Load in the penguins dataset we used in class this week, and for each of the 4 main numeric variables of interest (bill length, bill depth, flipper length, and body mass), do the following:
+
+ - Compute and report the mean and median of each variable.
+ - Compute and report the sd, IQR, and range of each variable.
+ - Find the observations at the 10th and 90th percentiles.
+ - Do any of the variables exhibit significant skewness? If yes, which ones and in what direction?
+ - Roughly estimate the mode(s). Are any of them multimodal?
+ 
+```{r}
+
+library(ggplot2)
+
+library(tibble)
+
+
+penguins <- read.csv("penguins.csv")
+
+penguins_tibble <- as_tibble(penguins)
+print(penguins_tibble, n = 30)
+
+numeric_vars <- c("bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g")
+
+# BILL LENGTH :
+
+bill_length_mean <- mean(penguins$bill_length_mm, na.rm = TRUE)
+bill_length_median <- median(penguins$bill_length_mm, na.rm = TRUE)
+bill_length_sd <- sd(penguins$bill_length_mm, na.rm = TRUE)
+bill_length_iqr <- IQR(penguins$bill_length_mm, na.rm = TRUE)
+bill_length_range <- max(penguins$bill_length_mm, na.rm = TRUE) - min(penguins$bill_length_mm, na.rm = TRUE)
+bill_length_p10 <- quantile(penguins$bill_length_mm, 0.10, na.rm = TRUE)
+bill_length_p90 <- quantile(penguins$bill_length_mm, 0.90, na.rm = TRUE)
+
+
+
+# BILL DEPTH
+bill_depth_mean <- mean(penguins$bill_depth_mm, na.rm = TRUE)
+bill_depth_median <- median(penguins$bill_depth_mm, na.rm = TRUE)
+bill_depth_sd <- sd(penguins$bill_depth_mm, na.rm = TRUE)
+bill_depth_iqr <- IQR(penguins$bill_depth_mm, na.rm = TRUE)
+bill_depth_range <- max(penguins$bill_depth_mm, na.rm = TRUE) - min(penguins$bill_depth_mm, na.rm = TRUE)
+bill_depth_p10 <- quantile(penguins$bill_depth_mm, 0.10, na.rm = TRUE)
+bill_depth_p90 <- quantile(penguins$bill_depth_mm, 0.90, na.rm = TRUE)
+
+# FLIPPER LENGTH
+flipper_length_mean <- mean(penguins$flipper_length_mm, na.rm = TRUE)
+flipper_length_median <- median(penguins$flipper_length_mm, na.rm = TRUE)
+flipper_length_sd <- sd(penguins$flipper_length_mm, na.rm = TRUE)
+flipper_length_iqr <- IQR(penguins$flipper_length_mm, na.rm = TRUE)
+flipper_length_range <- max(penguins$flipper_length_mm, na.rm = TRUE) - min(penguins$flipper_length_mm, na.rm = TRUE)
+flipper_length_p10 <- quantile(penguins$flipper_length_mm, 0.10, na.rm = TRUE)
+flipper_length_p90 <- quantile(penguins$flipper_length_mm, 0.90, na.rm = TRUE)
+
+# BODY MASS
+body_mass_mean <- mean(penguins$body_mass_g, na.rm = TRUE)
+body_mass_median <- median(penguins$body_mass_g, na.rm = TRUE)
+body_mass_sd <- sd(penguins$body_mass_g, na.rm = TRUE)
+body_mass_iqr <- IQR(penguins$body_mass_g, na.rm = TRUE)
+body_mass_range <- max(penguins$body_mass_g, na.rm = TRUE) - min(penguins$body_mass_g, na.rm = TRUE)
+body_mass_p10 <- quantile(penguins$body_mass_g, 0.10, na.rm = TRUE)
+body_mass_p90 <- quantile(penguins$body_mass_g, 0.90, na.rm = TRUE)
+
+
+
+# printing results out :
+
+
+cat("BILL LENGTH")
+cat("Mean:", bill_length_mean)
+cat("Median:", bill_length_median)
+cat("SD:", bill_length_sd)
+cat("IQR:", bill_length_iqr )
+cat("Range:", bill_length_range )
+cat("10th percentile:", bill_length_p10 )
+cat("90th percentile:", bill_length_p90 )
+cat("Skewness (mean-median)/sd:", (bill_length_mean - bill_length_median) / bill_length_sd, "\n\n")
+
+cat("BILL DEPTH\n")
+cat("Mean:", bill_depth_mean )
+cat("Median:", bill_depth_median )
+cat("SD:", bill_depth_sd )
+cat("IQR:", bill_depth_iqr )
+cat("Range:", bill_depth_range )
+cat("10th percentile:", bill_depth_p10 )
+cat("90th percentile:", bill_depth_p90 )
+cat("Skewness (mean-median)/sd:", (bill_depth_mean - bill_depth_median) / bill_depth_sd, "\n\n")
+
+cat("FLIPPER LENGTH\n")
+cat("Mean:", flipper_length_mean )
+cat("Median:", flipper_length_median )
+cat("SD:", flipper_length_sd )
+cat("IQR:", flipper_length_iqr )
+cat("Range:", flipper_length_range )
+cat("10th percentile:", flipper_length_p10 )
+cat("90th percentile:", flipper_length_p90 )
+cat("Skewness (mean-median)/sd:", (flipper_length_mean - flipper_length_median) / flipper_length_sd, "\n\n")
+
+cat("BODY MASS\n")
+cat("Mean:", body_mass_mean)
+cat("Median:", body_mass_median )
+cat("SD:", body_mass_sd )
+cat("IQR:", body_mass_iqr )
+cat("Range:", body_mass_range )
+cat("10th percentile:", body_mass_p10 )
+cat("90th percentile:", body_mass_p90 )
+cat("Skewness (mean-median)/sd:", (body_mass_mean - body_mass_median) / body_mass_sd, "\n\n")
+
+
+# making a histogram :
+
+hist(penguins$bill_length_mm, main = "Bill Length", breaks = 20)
+hist(penguins$bill_depth_mm, main = "Bill Depth", breaks = 20)
+hist(penguins$flipper_length_mm, main = "Flipper Length", breaks = 20)
+hist(penguins$body_mass_g, main = "Body Mass", breaks = 20)
+
+
+
+# In conclusion, the bill length shows slight right skew, (positive skew). The tail extends more toward higher values.
+#for the body mass histogram, it also shows a moderate right skew. There's a tail extending towards higher body masses.  
+
+
+
+#BillDepth shows obvious bimodal distribution with two peaks. 
+#Flipper Length appears potentially bimodal with peaks around 190m and 210 m.
+
+```
+ 
+
+
+# Q2
+
+Continuing with the penguins dataset, let's practice making some plots. For each variable in the dataset, choose one of the following plots to make that is appropriate for that data type. You must use each plot type at least once! Also make sure to properly annotate all plots!
+
+ - Histogram
+ - Density plot
+ - Box plot
+ - Bar plot
+ - One more plot type of your choice (you can read ahead in the notes to pick one, or perhaps find one from the ggplot [website](https://ggplot2.tidyverse.org) or [cheatsheet](https://rstudio.github.io/cheatsheets/data-visualization.pdf))
+
+```{r}
+
+
+#histogram for bill length : 
+
+
+plot1 <- ggplot(penguins, aes(x = bill_length_mm)) +
+  geom_histogram(fill = "blue", color = "white") +
+  labs(title = "Distribution of Penguin Bill Length",
+       subtitle = "Histogram showing frequency of bill lengths across all penguins",
+       x = "Bill Length (mm)",
+       y = "Frequency",
+       caption = "Data source: Palmer Penguins dataset") +
+  theme_minimal()
+
+
+# 2. DENSITY PLOT - Body Mass 
+plot2 <- ggplot(penguins, aes(x = body_mass_g)) +
+  geom_density(fill = "lightblue", color = "red") +
+  labs(title = "Density Distribution of Penguin Body Mass",
+       subtitle = "Smooth density curve showing the distribution shape",
+       x = "Body Mass (g)",
+       y = "Density",
+       caption = "Data source: Palmer Penguins dataset") +
+  theme_minimal()
+
+# 3. BOX PLOT - Flipper Length by Species 
+plot3 <- ggplot(penguins, aes(x = species, y = flipper_length_mm, fill = species)) +
+  geom_boxplot() +
+  labs(title = "Flipper Length Distribution by Penguin Species",
+       subtitle = "Box plots showing median, quartiles, and outliers for each species",
+       x = "Species",
+       y = "Flipper Length (mm)",
+       fill = "Species",
+       caption = "Data source: Palmer Penguins dataset") +
+  theme_minimal() 
+
+# 4. BAR PLOT - Count of Penguins by Island 
+plot4 <- ggplot(penguins, aes(x = island, fill = island)) +
+  geom_bar() +
+  labs(title = "Number of Penguins by Island",
+       subtitle = "Bar chart showing penguin counts across different islands",
+       x = "Island",
+       y = "Count of Penguins",
+       fill = "Island",
+       caption = "Data source: Palmer Penguins dataset") +
+  theme_minimal()
+
+# 5. VIOLIN PLOT - Bill Depth by Sex 
+
+plot5 <- ggplot(penguins, aes(x = sex, y = bill_depth_mm, fill = sex)) +
+  
+  geom_violin(alpha = 0.7) +
+  geom_boxplot(width = 0.1, fill = "white", alpha = 0.8) +
+  labs(title = "Bill Depth Distribution by Sex",
+       subtitle = "Violin plots with embedded box plots showing distribution shape and summary statistics",
+       x = "Sex",
+       y = "Bill Depth (mm)",
+       fill = "Sex",
+       caption = "Data source: Palmer Penguins dataset") +
+  theme_minimal() +
+  scale_fill_manual(values = c("female" = "purple", "male" = "black"))
+
+
+
+
+
+
+# Display all plots
+plot1
+plot2
+plot3
+plot4
+plot5
+
+
+
+
+
+# Summary of plot choices 
+cat("PLOT CHOICES AND RATIONALE:",
+    "1. HISTOGRAM - Bill Length: Shows frequency distribution of continuous data",
+    "2. DENSITY PLOT - Body Mass: Shows smooth probability density of continuous data", 
+    "3. BOX PLOT - Flipper Length by Species: Compares distributions across categories",
+    "4. BAR PLOT - Count by Island: Shows frequency of categorical data",
+    "5. VIOLIN PLOT - Bill Depth by Sex: Shows full distribution shape + summary stats",
+    sep = "\n")
+
+```
+

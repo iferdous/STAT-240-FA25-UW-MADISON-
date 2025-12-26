@@ -1,0 +1,224 @@
+---
+title: "Homework 2"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+# Q1
+
+Download the `eruptions_recent.csv` dataset shown in lecture to your computer as a physical file, import it using `read_csv`, then **print it out** in the knitted file. Do NOT use a link! Using a link will earn no credit for this question. The goal is to make you practice importing local files and managing paths.
+
+Then, answer the following questions:
+
+  1. How many rows and columns are there?
+  2. What is the type of data contained in each column?
+
+(note `read_csv` can autodetect numbers, logicals, and dates written in ISO 8601 format)
+
+
+```{r}
+
+library(tidyverse)
+
+volcano <- read.csv("eruptions_recent.csv")
+
+volcano
+
+#check the number of rows and columns
+dim(volcano)
+
+# Check column names and types
+str(volcano)
+
+
+```
+
+
+
+# Q2
+
+Borrowing slight ahead from the [Subsetting data frames](https://bwu62.github.io/stat240-revamp/data-frames.html#subsetting-data-frames) subsection, you can use the dollar sign to extract a column vector from a data frame, e.g. `eruptions_recent$volcano` extracts the `volcano` column vector from the `eruptions_recent` data frame. Then, these vectors can be used with any vector operations we learned before.
+
+Extract the `duration` column from `eruptions_recent`, then answer each of the following questions, using vectorized expressions whenever possible. Do NOT use any loops/control operations (e.g. `for`, `while`, `if`, `else`, etc..)
+
+  1. Manually compute and print out the mean and standard deviation of the durations (do not use `mean` or `sd`/`var`).
+  2. What percent of the durations values are withint 1 SD of the mean?
+  3. What are the min and max duration values, and how many times is the min value observed in the dataset?
+  4. Use the `hist` function to make a quick histogram of durations and briefly comment on the shape.
+
+
+
+```{r}
+
+# Extract duration column
+dur <- volcano$duration
+dur
+
+#manually computing the mean
+mean_dur <- sum(dur) / length(dur)
+
+# variance = sum((x - mean)^2)/(n-1), then sqrt for SD
+var_dur <- sum((dur - mean_dur)^2) / (length(dur) - 1)
+sd_dur <- sqrt(var_dur)
+
+mean_dur
+sd_dur
+
+# % of values within 1 SD 
+within_1sd <- dur >= (mean_dur - sd_dur) & dur <= (mean_dur + sd_dur)
+percent_within_1sd <- sum(within_1sd) / length(dur) * 100
+
+percent_within_1sd
+
+
+#max, min, and min count
+
+minimum_dur <- min(dur)
+max_dur <- max(dur)
+minimum_count <- sum(dur == minimum_dur)
+
+minimum_dur
+max_dur
+minimum_count
+
+#histogram:
+
+hist(dur, main="Histogram of Eruption Durations",
+     xlab="Duration (minutes)", col="purple", border="black")
+
+
+
+```
+
+# Q3 
+
+Extract the `volcano` column from `eruptions_recent`, then answer each of the following questions, again using vectorized expressions whenever possible and no loop/control operations.
+
+  1. Remove duplicates (use `unique`), sort the volcano names by alphabetical order, then print them out.
+  2. How many unique volcanoes have had recorded eruptions in the 21st century?
+  3. Using the original `volcano` column (with duplicates), feed it to the `table` function to make a table showing how many times each volcano has erupted, then finally sort the table in decreasing order (see [section 3.8](https://bwu62.github.io/stat240-revamp/data-vectors.html#sortingreordering) on sorting for more).
+  4. Fill in the blank: the top ___ volcanoes account for just over 50% of all recent eruptions in the dataset.
+  
+  
+```{r}
+
+volc <- volcano$volcano
+
+volc
+
+
+# Unique and alphabetically sorted
+unique_sorted_volc <- sort(unique(volc))
+unique_sorted_volc
+
+
+volc_21st <- volcano$volcano[volcano$start_date >= as.Date("2000-01-01")]
+
+volc_21st
+
+# Count how many unique ones erupted
+unique_21st_count <- length(unique(volc_21st))
+unique_21st_count
+
+# Count eruptions for each volcano
+volc_counts <- table(volc)
+volc_counts
+
+# in decreasing order
+volc_counts_sorted <- sort(volc_counts, decreasing = TRUE)
+volc_counts_sorted
+
+
+# total eruptions :
+total_eruptions <- sum(volc_counts_sorted)
+total_eruptions
+
+
+#gives us how much each volcano eurupted
+cumulative <- cumsum(volc_counts_sorted)
+cumulative
+
+top_n <- which(cumulative >= 0.5 * total_eruptions)[1]
+top_n
+
+
+```
+  
+
+
+# Q4
+
+Finally, extract the `start` and `stop` columns from `eruptions_recent`, then answer each of the following questions, again using vectorized expressions whenever possible and no loop/control operations.
+
+  1. Check that `stop` minus `start` equals `duration` for every row. Are there any rows where these are not equal? If yes how many?
+  2. Using the `start` column, extract out each of the year, month, and day components, then paste them back together in a different order using `paste`, then re-convert them back to a date object using one of the `ymd`, `mdy`, ... functions. Check the re-created final date matches the original `start` column for every value.
+  
+  
+```{r}
+
+#extracting the start and stop columns:
+
+start <- volcano$start
+stop  <- volcano$stop
+ dur   <- volcano$duration
+ 
+ start
+ stop
+ dur
+ 
+ 
+ #making sure these are saved as dates so we can do the subtraction
+ 
+ start <- as.Date(start)
+stop  <- as.Date(stop)
+
+ 
+ startMstop <- as.numeric(stop - start)
+startMstop
+
+
+#chekcing the equality :
+
+check_equal <- startMstop == dur
+
+# They are indeed are all equal. 
+
+library(lubridate)
+
+# extracting year, month, day
+yr <- year(start)
+mo <- month(start)
+dy <- day(start)
+
+
+# reorder as month-day-year, then make it into Date again
+reordered <- paste(mo, dy, yr, sep = "-")
+reconstructed <- mdy(reordered)
+
+reconstructed
+
+#now we need to check if they match the original start date. 
+
+isEqual <- all(reconstructed == start)
+isEqual
+
+#True, all of the values are equal. 
+
+
+
+
+```
+  
+

@@ -1,0 +1,159 @@
+---
+title: "Homework 1, Stat 240"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```
+# Assignment Policy
+# - Assignments will be posted regularly (specify day if given, e.g. weekly)
+- Assignments are typically posted on Fridays and due weekly. 
+# - Due dates: (Due every Friday.)
+# - Late policy: (No late submissions will be accepted.)
+# - Number of drops allowed: (Lowest 2 discussion worksheets and lowest 2 homework scores will be dropped.)
+
+# Exam Scheduling
+# - Number of exams: (2 exams total)
+# - Exam dates, times, and locations: (Midterm: Friday, Oct 17 (in-class, regular lecture time/place. 
+  -  Final: Tuesday, Dec 16, 7:45–9:45 AM. )
+# - Conflicts: Confirm you have checked for conflicts. 
+#   If yes, did you contact the instructor? (Yes/No)
+# - Emergencies/conflicts: Agree to contact the instructor ASAP with documentation to reschedule.
+#   (Failure to do so may result in a 0)
+
+# Final Grades
+# - Final grade computation: 
+
+- Components:  
+  - Discussion worksheets: 5% (lowest 2 dropped)  
+  - Homeworks: 20% (lowest 2 dropped)  
+  - Project: 20%  
+  - Midterm: 25%  
+  - Final: 30%  
+
+# - Agreement: You agree to be evaluated according to the provided breakdown/scale.
+Agree.
+
+```
+```
+
+# PART B
+
+```{r}
+
+#a.  What is the square root of the base 10 log of 2025?
+sqrt(log10(2025))
+
+# b. What are the remainders of 2025 when divided by each of the numbers 2 to 9? 
+divisors <- 2:9
+remainders <- 2025 %% divisors
+data.frame(Divisor = divisors, Remainder = remainders)
+
+# c. What's the correlation coefficient between these points: (3.63,53.1), (3.02,49.7), (3.82,48.4), (3.42,54.2), (3.59,54.9)?
+x <- c(3.63, 3.02, 3.82, 3.42, 3.59)
+y <- c(53.1, 49.7, 48.4, 54.2, 54.9)
+correlation <- cor(x, y)
+correlation
+
+# d. How does R handle 0 to the power of 0, and how does this compare with other programs?
+
+0^0  
+
+# In other programs it is also similar, as in Python, Matlb and Java it also returns 1 as well. 
+
+
+
+#e.Other than the examples in section 2.3.4, can you come up with another way of producing NaN or ±Inf as an output (without using them in the input)?
+# Yes there are other ways of prodocuing Nan or Inf such as : 
+0/0
+Inf - Inf
+log(-1)
+log10(-1)
+
+
+# f. Write two mathematical inequalities using both & and | as well as at least a few mathematical operations, one of which evaluates to TRUE and the other to FALSE.
+
+(3 + 5 > 6) & (10 / 2 == 5) | (4^2 < 10)
+
+
+(2 * 3 > 10) & (7 - 4 == 2) | (5 + 1 < 5)
+
+
+
+#2 
+
+# a. Give 3 examples of invalid variable names (you can just write these out instead of putting them in a chunk).
+
+
+```
+
+#2variable
+#name-of-variable
+#my variable
+
+```{r}
+
+
+
+# b. Find some R package you like and install it 
+
+install.packages("ggplot2", repos = "https://cran.r-project.org")
+library(ggplot2)
+
+ggplot(mtcars, aes(x = wt, y = mpg)) + 
+  geom_point()
+  
+#ggplot package designed for creating a wide variety of data visualizations and plots.
+
+
+
+# c. Using the built-in help page, look up prop.test( ) and briefly describe what it does, important arguments, and give a simple example of how to use it.
+
+prop.test(x = 55, n = 100, p = 0.5)
+
+# In summary, prop test basically used to test hypotheses about one or more proportions in groups or samples.
+#For prop.test don't forget : 
+
+# x: Number of successes (can be a vector/ matrix for multiple groups)
+
+# n: Number of trials (same length as x)
+
+# p: Hypothesized probability of success (default is 0.5)
+
+
+
+```
+
+```{r}
+#3 
+
+temps <- c(22.4, 24.1, 23.5, 22.9, 23.4, 24.9, 25.3, 23.9, 22.8, 24.2, 25.0, 24.5, 23.7, 23.1)
+
+  mean(temps)
+
+  median(temps)
+
+  sd(temps)
+
+ min(temps)
+ 
+ max(temps)
+ 
+ 
+ boxplot(temps)
+
+#The boxplot shows the distribution of daily temperatures over the 2-week period. The median temp would be 23.9 C. One observation I made is that there are no outliers, all of the temperatures are within a range which shows us consistent weather conditions. 
+
+#Website to where I found the DataSet : https://www.ncdc.noaa.gov/cdo-web/
+
+
+```
+
+

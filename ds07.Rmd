@@ -1,0 +1,95 @@
+---
+title: "Discussion 7"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Review notes
+
+As usual please review the intro to probability sections we covered this past week. Make sure you understand each of the following key concepts:
+
+ - Random variables
+ - Outcomes, events, and sample space
+ - Axioms of probability
+ - Intersections and unions of events
+ - Mutual exclusivity
+ - Discrete and continuous distributions
+ - PMFs and PDFs, and how they differ
+
+## Probability practice
+
+1. Give an example each of a discrete and continuous random variable For each of your examples of a discrete and continuous RV, can you give an example PMF and PDF that could plausibly be its distribution function?
+
+```{r}
+
+# a discrete random heads is one that takes on countable values. An example of this could be the the # of heads when flipping 3 coins. 
+
+# Random variables : X = number of heads
+# Possible values : 
+# PMF : probability mass function, gives the probability of each value. 
+
+x <- 0:3  # possible outcomes
+pmf <- c(1/8, 3/8, 3/8, 1/8) # there are 8 total outcomes. 
+
+discrete_rv <- data.frame(X = x, PMF = pmf)
+print(discrete_rv)
+
+
+```
+
+
+2. For each of the following statements, think about them carefully and respond briefly to each.
+
+   a. Why do we need the axioms of probability?
+   b. What are "outcomes" vs "events"?
+   c. Can you ever observe something outside the sample space?
+   d. What does mutually exclusive mean?
+   e. Why do we have to distinguish discrete vs continuous variables?
+   f. What ways can you specify the distribution of an RV? Is there a best way?
+   g. What does the PMF tell you for each outcome k?
+   h. What does the PDF tell you for each outcome k an how does this differ from PMFs?
+   i. What is the empirical rule and where does it apply?
+   j. What is an expected value?
+
+
+```{r}
+
+# a. they give us the basic rules to make probability consistent and logical.
+
+# b. outcomes are a single result (flipping H) and event is a set out outcomes, (getting atleast one head)
+
+# c. no, everything must be part of the sample space by definition
+
+#d. it means 2 events cannot happen at the same time. 
+
+#e. because they behave differently and need different probability tools 
+
+#f. we can do this by doing PMF/PDF, tables, formulas, or graphs, there is no best way, just in the context.
+
+#g. it tells us the probability of that random variable k. 
+
+#h. PDF gives us the density, not exact probability. probability comes from the area under the curve.
+#PMFs give exact probabilities for discrete outcomes.
+
+#i. In a normal distribution: ~68% within 1 SD, 95% within 2 SD, 99.7% within 3 SD.
+
+#j. The weighted average or long term mean of a random variable.
+
+
+
+
+
+```
+

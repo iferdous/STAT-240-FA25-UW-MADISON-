@@ -1,0 +1,255 @@
+---
+title: "Homework 6"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Q1
+
+Let's use the Madison historical weather dataset for one more question.
+
+```{r}
+madison = read_csv("https://data.rcc-acis.org/StnData?sid=MSNthr&sdate=por&edate=por&elems=avgt,maxt,mint&output=csv",
+                   skip=1, col_names=c("date","tavg","tmax","tmin"), show_col_types=F) %>% arrange(desc(date))
+madison
+```
+
+Get the last decade and a half of years (i.e. all data 2010-present) and find the mean tvg for each year AND month combination (you should end up with ~190 group averages).
+
+Now, take this data and tabulate it with `pivot_wider()` so that each month is on its own column and each year on its own row. **Print this table out!**
+
+Also show that with an appropriate `pivot_longer()` operation, you can pivot this table back into its longer form, cancelling out the `pivot_wider()` operation you just ran.
+
+```{r}
+
+# rearranging from 2010 to present :
+madison_recent = madison %>%
+  filter(lubridate::year(date) >= 2010)
+
+# computing the mean average temp by year and month :
+madison_summary = madison_recent %>%
+  mutate(year = lubridate::year(date),
+         month = lubridate::month(date)) %>%
+  group_by(year, month) %>%
+  summarise(mean_tavg = mean(tavg, na.rm = TRUE))
+
+# pivoting the data wider : (months as columns)
+madison_wide = madison_summary %>%
+  pivot_wider(
+    names_from = month,
+    values_from = mean_tavg,
+    names_prefix = "month_"
+  )
+
+madison_wide
+
+# pivoting back to long form
+madison_long = madison_wide %>%
+  pivot_longer(
+    cols = starts_with("month_"),
+    names_to = "month",
+    values_to = "mean_tavg",
+    names_prefix = "month_"
+  )
+
+madison_long
+
+```
+
+
+
+## Q2
+
+For the next questions, let's examine historic CO2 and ocean acidity data gathered from NOAA and the University of Hawaii.
+
+As the amount of CO2 in the atmosphere rises, some CO2 can dissolve into the ocean, which lowers the pH of the water and increases acidity. This is a major environmental concern and can have significant impact on marine biodiversity.
+
+The chunk below loads in the two datasets we will use (`co2_weekly_mlo.txt` and `HOT_surface_CO2.txt`) directly from the NOAA and U of Hawaii websites, and performs some basic data parsing like separating out comments, correcting NA values, and setting column names. From the `co2` dataset, we mainly care about the `ppm` column, which measure the amount of CO2 in the atmosphere in units of parts per million (i.e. number of CO2 particles in each million particles). From the `ph` dataset, we mainly care about the `ph` column, which contains estimated ocean pH at a reference temperature based on surface ocean pH measurements. These columns have been selected out for you.
+
+```{r}
+# use a slightly different function here due to unique table format
+co2 = read_table("https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_weekly_mlo.txt",
+                 na="-999.99", comment="#", show_col_types=F,col_names=c(
+                   "year","month","day","year.decimal","ppm","n.days","yr-1-ago","yr-10-ago","increase.1800")) %>% 
+  select(year, month, day, ppm)
+
+ph = read_table("https://hahana.soest.hawaii.edu/hot/hotco2/HOT_surface_CO2.txt",skip=8,na="-999",show_col_types=F) %>%
+  rename(ph=pHcalc_25C) %>% select(date, ph)
+co2
+ph
+```
+
+For each dataset, ensure the following by either creating/editing appropriate columns:
+
+- There should be a `date` column with a proper date-object giving the date of the observation,
+- There should also be `year` and `month` columns giving the year/month of each observation,
+  - `month` should be coded as "Jan", "Feb", ..., "Dec" and these should have the natural ordering (if you use `month()` function with `label=TRUE` the ordering should be automatically done for you)
+- Drop any rows with missing values anywhere
+
+Start by making a line plot of each data set, showing the trend of each dataset over time. Also add a smoothed trend curve (and set `se=FALSE` to hide error bands). Describe the trends observed.
+
+
+```{r}
+
+library(lubridate)
+
+# load and drop missing values :
+
+# co2 : 
+co2 = read_table(
+  "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_weekly_mlo.txt",
+  na = "-999.99", comment = "#",
+  col_names = c("year","month","day","year.decimal","ppm",
+                "n.days","yr.1.ago","yr.10.ago","increase.1800"),
+  show_col_types = FALSE
+) %>%
+  mutate(date = make_date(year, month, day),
+         year = year(date),
+         month = month(date, label = TRUE, abbr = TRUE)) %>%
+  drop_na()
+
+# pH:
+
+ph = read_table(
+  "https://hahana.soest.hawaii.edu/hot/hotco2/HOT_surface_CO2.txt",
+  skip = 8, na = "-999", show_col_types = FALSE
+) %>%
+  rename(ph = pHcalc_25C) %>%
+  mutate(date = as.Date(date, format = "%d-%b-%y"),
+         year = year(date),
+         month = month(date, label = TRUE, abbr = TRUE)) %>%
+  drop_na()
+
+
+# co2 graph :
+ggplot(co2, aes(x=date, y=ppm)) +
+  geom_line(color="red") +
+  geom_smooth(se=FALSE, color="black") +
+  labs(title="Atmospheric CO2 at Mauna Loa (ppm)",
+       x="Year", y="CO2 (ppm)")
+
+# pH graph :
+
+ggplot(ph, aes(x=date, y=ph)) +
+  geom_line(color="blue") +
+  geom_smooth(se=FALSE, color="black") +
+  labs(title="Surface Ocean pH at ALOHA Station",
+       x="Year", y="pH (25°C reference)")
+
+
+```
+
+
+
+
+## Q3
+
+Note the seasonality of the dataset. Let's quickly explore the seasonality before averaging it out in the next question. For each dataset, do the following:
+
+- Filter to keep only the years 1989-2023, since this is a relatively complete range of dates for both datasets.
+- Find the monthly averages of the main data columns (`ppm`,`ph`), while ignoring year. You should have 12 rows, one for each month's average.
+- For each, plot this as a bar graph showing monthly averages.
+
+Do you observe seasonality in the plots? If yes what's the trend vs the seasons and vs each other? Do these trends make sense?
+
+
+```{r}
+
+# filter to 1989 - 2023 
+co2_monthly = co2 %>%
+  filter(year >= 1989, year <= 2023) %>%
+  mutate(month = month(date, label=TRUE, abbr=TRUE)) %>%
+  group_by(month) %>%
+  summarise(mean_ppm = mean(ppm, na.rm=TRUE))
+
+
+ph_monthly = ph %>%
+  filter(year >= 1989, year <= 2023) %>%
+  mutate(month = month(date, label=TRUE, abbr=TRUE)) %>%
+  group_by(month) %>%
+  summarise(mean_ph = mean(ph, na.rm=TRUE))
+
+
+# plotting :
+
+
+# CO2 month bar plot :
+
+ggplot(co2_monthly, aes(x=month, y=mean_ppm)) +
+  geom_col(fill='red') +
+  labs(title='Average CO2 (ppm) by Month')
+
+# Ocean pH month bar plot :
+
+ggplot(ph_monthly, aes(x=month, y=mean_ph)) +
+  geom_col(fill='blue') +
+  labs(title='Average Surface Ocean pH by Month')
+
+
+# the co2 and ocean pH monthly patterns show opposite seasonal cycles. CO2 is highest in late spring and lowest in autumn because plants absorb CO2 during growing months.Ocean pH is lowest (more acidic) when CO2 is highest, and highest when CO2 is lowest.
+
+
+```
+
+
+
+
+## Q4
+
+Now let's remove the seasonality and look at the two datasets jointly. For each dataset, find the annual average of the main data columns (`ppm`,`ph`) so you have a single average for each year. Join these two averaged data frames by year, then show a scatterplot of ocean acidity (Y) vs co2 concentration (X). Add a line of best fit through the data with error bands hidden.
+
+Briefly comment on the plot, what do you notice? Does this plot agree with what you saw for previous questions?
+
+
+```{r}
+
+# annual average co2 :
+
+co2_annual = co2 %>%
+  mutate(year = year(date)) %>%
+  group_by(year) %>%
+  summarise(mean_ppm = mean(ppm, na.rm=TRUE))
+
+
+# annual average pH :
+
+ph_annual = ph %>%
+  mutate(year = year(date)) %>%
+  group_by(year) %>%
+  summarise(mean_ph = mean(ph, na.rm=TRUE))
+
+# join both
+
+combined_annual = inner_join(co2_annual, ph_annual, by = "year")
+
+# scatter plot :
+
+ggplot(combined_annual, aes(x = mean_ppm, y = mean_ph)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Annual Average CO2 (ppm)",
+       y = "Annual Average Ocean pH",
+       title = "Ocean pH vs Atmospheric CO2 (Annual Averages)")
+
+
+# The scatter plot shows us a clear negative correlation as co2 concentration increases, ocean pH decreases.
+# this also matches the previous findings, the ocean absorbs more co2 as levels rise. 
+# the joint view removes the seasonal variability, showing us the link between increasing co2 and ocean acid over time. 
+
+
+
+```
+
+

@@ -1,0 +1,192 @@
+---
+title: "Homework 7"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Q1
+
+You roll 2 fair, 6-sided dice. Consider the following events:
+
+A: at least one die is even
+B: the two dice sum to 7
+C: one of the dice is divisible by the other
+
+Find each of the following sets
+
+a. Each intersection of all pairs of events (i.e. A∩B, A∩C, B∩C)
+b. Each union of all pairs of events (i.e. A∪B, A∪C, B∪C)
+c. The intersection of all 3 (i.e. A∩B∩C)
+d. The union of all 3 (i.e. A∪B∪C)
+
+
+
+```{r}
+
+# setting up 2 dice :
+dice <- expand.grid(die1 = 1:6, die2 = 1:6)
+
+# defining the pre conditions : 
+
+A <- subset(dice, die1 %% 2 == 0 | die2 %% 2 == 0)  # at least one die is even
+
+B <- subset(dice, die1 + die2 == 7) # sum to 7
+
+C <- subset(dice, die1 %% die2 == 0 | die2 %% die1 == 0) # one die divisible by the other
+
+# finding the intersections of the dice :
+
+A_inter_B <- merge(A, B) # merged is used to combine two data frames
+A_inter_C <- merge(A, C)
+B_inter_C <- merge(B, C)
+
+# getting the unions : 
+
+A_union_B <- unique(rbind(A, B)) # rbind also combines data frames
+A_union_C <- unique(rbind(A, C))
+B_union_C <- unique(rbind(B, C))
+
+# intersecting all 3 :
+A_inter_B_inter_C <- merge(A_inter_B, C)
+A_union_B_union_C <- unique(rbind(A, B, C))
+
+# results of all : 
+
+print("A ∩ B:")
+print(A_inter_B)
+
+print("A ∩ C:")
+print(A_inter_C)
+
+print("B ∩ C:")
+print(B_inter_C)
+
+print("A ∪ B:")
+print(A_union_B)
+
+print("A ∪ C:")
+print(A_union_C)
+
+print("B ∪ C:")
+print(B_union_C)
+
+print("A ∩ B ∩ C:")
+print(A_inter_B_inter_C)
+
+print("A ∪ B ∪ C:")
+print(A_union_B_union_C)
+
+
+
+
+
+```
+
+
+## Q2
+
+Let $X$ be a discrete random variable with the following PMF:
+
+$$
+P_X(x)= \begin{cases}0.1 & \text { for } x=0.2 \\ 0.2 & \text { for } x=0.4 \\ 0.2 & \text { for } x=0.5 \\ 0.3 & \text { for } x=0.8 \\ 0.2 & \text { for } x=1 \\ 0 & \text { otherwise }\end{cases}
+$$
+
+a. Is this a valid PMF? Explain.
+b. Find P(X≤0.5).
+c. Find P(0.25<X<0.75).
+d. Make a plot of the PMF.
+
+
+```{r}
+
+# a. for this to be valid, a probability mass function (PMF) is valid if:
+# 1. all of the probabilities are non-negative 
+# 2. they all sum to 1
+# 0.1+0.2+0.2+0.3+0.2= 1 ; therefore, it is VALID.
+#VALID 
+
+
+#b. X-values that are less than to equal to 0.5 are : 0.2,0.4,0.5
+# P(X≤0.5) = 0.1+0.2+0.2=0.5
+# answer : 0.5
+
+
+#c. Find P(0.25<X<0.75)
+# the X-values that are between 0.25 and 0.75 
+# x = 0.4 and 0.5 ; the number associated with those numbers are 0.2 and 0.2 
+# 0.2+0.2= 0.4
+# answer : 0.4 
+
+
+#plotting : 
+
+df <- data.frame(
+  x = c(0.2, 0.4, 0.5, 0.8, 1.0),
+  p = c(0.1, 0.2, 0.2, 0.3, 0.2)
+)
+
+ggplot(df, aes(x = x, y = p)) +
+  geom_col(fill = "blue", width = 0.1) +
+  labs(title = "PMF of X", x = "x", y = "P(X = x)") +
+  theme_minimal()
+
+
+
+```
+
+
+## Q3
+
+Let X,Y be two independent uniform random variables over [0,1], in other words each variable is fairly drawing a real number between 0 and 1. It can be shown that max(X,Y) gives the following pdf (knit to see):
+
+```{r,fig.width=6,fig.height=3}
+ggplot()+geom_function(fun=\(x)ifelse(0<x&x<1,2*x,0),xlim=c(-1,2),n=1e3)+theme_bw()
+```
+
+Find each of the following probabilities (hint: no fancy math necessary, remember probabilities correspond to what on a pdf?)
+
+a. Is this a valid PDF? Explain
+a. P( max(X,Y) < 0.5 )
+b. P( 0.25 < max(X,Y) < 0.75 )
+c. P( max(X,Y) < 0.25 OR 0.75 > max(X,Y) )
+
+
+```{r}
+
+ggplot()+geom_function(fun=\(x)ifelse(0<x&x<1,2*x,0),xlim=c(-1,2),n=1e3)+theme_bw()
+
+#a. Yes this is a valid probability density function. The total area under the triangle is 1.
+
+
+# b. P(max<0.5) ; small triangle, base=0.5 and height is 1. 
+# 0.5 x 1 is 0.25 
+# answer = 0.25
+
+
+# c. Area from 0.25 to 0.75
+# (0.5 × 0.75 × 1.5) − (0.5 × 0.25 × 0.5) = 0.5625 − 0.0625
+# answer = 0.5
+
+
+#d. Area up to 0.75 (height = 1.5)
+# 0.5 x 0.75 x 1.5 
+# answer = 0.5625 
+
+
+
+
+
+```
+

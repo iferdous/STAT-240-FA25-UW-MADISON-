@@ -1,0 +1,206 @@
+---
+title: "Discussion 3"
+author: "NAME HERE"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Review notes
+
+For each of the data frames, descriptive stats, and data vis chapters we covered this past week, if you haven't already, read through the additional notes in the examples and run some of them for more R practice (no need to show work for this)
+
+ - Show an example below in an R chunk for each of the following:
+   1. Find an example online of a TSV and an XLSX data set and read them in, then make sure all columns are properly parsed/converted and print out the data frame (if you're having difficult finding one, you can create one yourself too)
+   
+   
+   2. Practice using the data frame subsetting operations, in particular practice both the $ syntax as well as the [row, col] syntax.
+   
+   
+   3. Practice finding and interpreting the summary statistics demonstrated, including all the different center/spread statistics.
+   
+   
+  
+   4. Pick one additional summary statistic in the "Other measures" sections to read about on your own, then write a brief summary on it, including its definition, its main use cases, and give a brief demo of how to compute it in R.
+   
+   
+   5. Review the different plot types covered, and practice each of them on a dataset of your choice.
+   
+   
+   6. Consult the ggplot2 help pages & cheat sheet, pick 1 additional aesthetic to incorporate into a plot, explain what it is and how it works, give an example of its use, and discuss its usefulness/appropriateness in various plotting contexts.
+   
+```{r}
+  library(e1071)
+    library(readxl)
+    library(tidyverse)
+
+
+titanic_tsv <- read_tsv("titanic-parquet.tsv")
+
+titanic_tsv$Age <- as.numeric(titanic_tsv$Age)
+
+
+seattle_xlsx <- read_excel("seattleWeather.xlsx")
+
+str(titanic_tsv)
+seattle_xlsx
+
+
+print(head(titanic_tsv))
+
+
+
+ages <- titanic_tsv$Age
+print(ages)
+
+
+# extracted the first 5 rows, survived and sex
+
+subset_df <- titanic_tsv[1:5, c("Survived", "Sex")]
+print(subset_df)
+
+#extracting a specific value: PassangerClass for first row:
+
+pclass_first <- titanic_tsv[1, "Pclass"]
+print(pclass_first)
+
+
+# Summary statistics on Age column (centers: mean, median; spreads: sd, IQR, range)
+
+
+age_mean <- mean(titanic_tsv$Age, na.rm = TRUE)
+age_mean
+age_median <- median(titanic_tsv$Age, na.rm = TRUE)
+age_median
+age_sd <- sd(titanic_tsv$Age, na.rm = TRUE)
+age_sd
+age_iqr <- IQR(titanic_tsv$Age, na.rm = TRUE)
+age_iqr
+age_range <- range(titanic_tsv$Age, na.rm = TRUE)
+age_range
+age_summary <- summary(titanic_tsv$Age)
+age_range
+
+
+
+# Print out statistics
+cat("Mean:", age_mean, "\n")
+cat("Median:", age_median, "\n")
+cat("Standard deviation:", age_sd, "\n")
+cat("IQR:", age_iqr, "\n")
+cat("Range:", age_range, "\n")
+print(age_summary)
+
+
+# picking a summary statistic 
+#Were going to do skewness, which measures the asymmety of a distribution around its mean.
+
+# Fix: Convert Age to numeric first to handle any text values
+titanic_tsv$Age <- as.numeric(titanic_tsv$Age)
+
+age_skewness <- skewness(titanic_tsv$Age, na.rm = TRUE)
+
+#concatinating 
+cat("Skewness of Age:", age_skewness, "\n")
+
+
+#5 different type of plot demonstrations
+
+#making a histogram
+hist(titanic_tsv$Age, main = "Histogram of Age", xlab = "Age")
+
+
+#making a boxplot :
+boxplot(titanic_tsv$Age, main = "Boxplot of Age", ylab = "Age")
+
+
+# doing a scatterplot: come back to this
+
+plot(seattle_xlsx$date, seattle_xlsx$precipitation,
+     main = "Scatterplot of Date vs. Precipitation",
+     xlab = "Date", ylab = "Precipitation")
+
+
+
+#6 
+
+ggplot(seattle_xlsx, aes(x = temp_max, y = temp_min)) +
+  geom_point(size = 3) +
+  labs(title = "Maximum temperature vs. Minimum temperature through 2012-2015")
+
+```
+
+## Real data exploration
+
+Again, find a dataset (you can reuse one from a previous assignment or lecture if you wish, but you're encouraged to explore a new one!)
+
+Import it in, then do the following:
+
+ - Make sure each column is properly converted into an appropriate type (if not you can use the $ extraction syntax to modify and replace a column with the correct type).
+ 
+ - Present a small set of most useful summary statistics on any variables of interest, briefly discuss your choice of statistic.
+ 
+ - Make some exploratory plots of the data. Again, try to focus on a small number of most useful plots for visualizing and getting a feel for the dataset.
+ 
+ 
+ - Briefly comment on your plots, explaining how to interpret/read them, identify any interesting patterns, and suggest interesting relationship that may be worth investigating further.
+ 
+ 
+```{r}
+
+library(ggplot2)
+
+
+
+f1_tracks <- read.csv("f1 tracks.csv")
+
+
+str(f1_tracks)
+
+
+#converting any columns that need a type correction : 
+f1_tracks$lat <- as.numeric(f1_tracks$lat)
+f1_tracks$lng <- as.numeric(f1_tracks$lng)
+f1_tracks$alt <- as.numeric(f1_tracks$alt)
+
+
+# doing some summary statistics:
+summary(f1_tracks$lat)
+summary(f1_tracks$lng)
+summary(f1_tracks$alt)
+
+# scatter plot of locations by lat/lang
+
+
+ggplot(f1_tracks, aes(x = lng, y = lat)) +
+  geom_point(color = "blue", size = 2) +               # points for lat/lng
+  geom_text(aes(label = name), hjust = 0, vjust = 1) + # add names as text near points
+  labs(title = "Grand Prix Circuits with Names",
+       x = "Longitude", y = "Latitude") +
+  theme_minimal()
+
+#this scatter plot shows a strong geographic trend toward Europe and developed nations, with most tracks clustered in temperate regions between 30-60° latitude.
+
+
+# Histogram of altitude to see elevation distribution of tracks
+
+ggplot(f1_tracks, aes(x = alt)) +
+  geom_histogram(binwidth = 50, fill = "green", color = "black") +
+  labs(title = "Altitude Distribution of F1 Circuits", x = "Altitude (meters)", y = "Count")
+
+
+# this altitude histogram shows that F1 circuits are heavily concentrated at low elevations, with the vast majority (over 20 circuits) located near sea level. The distribution has a strong right skew with only a few high-altitude outliers 
+
+
+```
+ 

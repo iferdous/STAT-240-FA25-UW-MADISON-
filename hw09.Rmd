@@ -1,0 +1,181 @@
+---
+title: "Homework 9"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Q1
+
+You run a little apple orchard in rural Wisconsin where you have several hundred apple trees. When harvesting, you observe each apple tree produces an average of about 250 apples with an SD of 25 and that the number produced is approximately normal.
+
+a. Make a plot of this normal density, and use lines to mark the ±1,±2 SD points.
+b. What is the IQR for the number of apples produced per tree?
+c. A tree at the 90-th percentile produces how many apples?
+d. What is the probability for a given tree the number of apples produced is between 200-300?
+e. Suppose trees are independent from each other. If you harvest 20 trees, what is the probability at least one of them will produce either fewer than 200 or more than 300 apples? (hint: use a binomial here)
+
+
+```{r}
+
+# plotting the normal density and mark 1, 2 sd:
+
+mu = 250   # mean
+sigma = 25 # standard deviation
+
+x = seq(175, 325, by=1)
+plot(x, dnorm(x, mu, sigma), type="l", main="Normal Density: Apples per Tree",
+     xlab="Apples", ylab="Density")
+
+abline(v=mu, col="black")          # mean
+abline(v=mu+c(-1,1)*sigma, col="red", lty=2)   # 1 SD
+abline(v=mu+c(-2,2)*sigma, col="blue", lty=2)  # 2 SD
+
+
+# the iqr for apple yield : 
+
+
+q3 = qnorm(0.75, mu, sigma)
+q1 = qnorm(0.25, mu, sigma)
+IQR = q3 - q1
+IQR
+
+#90th percentile :
+
+q90 = qnorm(0.9, mu, sigma)
+q90
+
+
+# probability between 200 - 300 : 
+
+prob_200_300 = pnorm(300, mu, sigma) - pnorm(200, mu, sigma)
+prob_200_300
+
+
+# at least one of 20 trees is outside 200-300
+
+p_outside = pnorm(200, mu, sigma) + (1 - pnorm(300, mu, sigma))
+# Probability none of 20 are outside this range:
+p_none = (1 - p_outside)^20
+# Probability at least one is outside:
+p_atleast_one = 1 - p_none
+p_atleast_one
+
+
+```
+
+
+## Q2
+
+You're a kid trick-or-treating on Halloween. Suppose you plan to knock on 100 doors, and suppose there's about a 10% chance that any given household hands out full-sized candy bars, and a 90% chance they give out mini-sized candy bars (every house gives exactly 1 piece). Let X be the number of full-sized candy bars you have at the end of the night.
+
+a. What is the distribution of X? Give the parameters and show a plot of it.
+b. What are the expectation and SD of this distribution?
+c. What is the 90-th percentile of this distribution, and what is the probability you observe exactly that outcome?
+d. Check the conditions for the normal approximation of the binomial, then state & plot the normal curve that can be used here to approximate X.
+e. Use both an exact binomial method as well as a normal approximation with continuity correction to find the probability you get more than x=12, and compare the two results. How good is the approximation here?
+
+
+```{r}
+
+# a. distribution of x : 
+
+n = 100
+p = 0.1
+xvals = 0:n
+barplot(dbinom(xvals, n, p), names.arg=ifelse(xvals %% 5==0, xvals, ""), 
+        main="Binomial: Full-Sized Candy Bars", xlab="Number of Full-Sized Bars", ylab="Probability")
+
+
+# b. 
+
+EV <- n * p
+SD <- sqrt(n * p * (1 - p))
+EV
+SD
+
+#c. 90th percentile and probability : 
+q90 <- qbinom(0.9, size=n, prob=p)
+prob_q90 <- dbinom(q90, size=n, prob=p)
+q90
+prob_q90
+
+#d. normal approximation and plot : 
+
+mu <- EV
+sigma <- SD
+curve(dnorm(x, mean=mu, sd=sigma), from=0, to=25,
+      main='Normal Approximation to Binomial', ylab='Density', xlab='x')
+abline(v=mu, col='red')
+
+#e. probability for more than 12 : 
+prob_binom <- 1 - pbinom(12, size=n, prob=p)
+
+#d. normal approximation : 
+
+prob_norm <- 1 - pnorm(12.5, mean=mu, sd=sigma)
+
+prob_binom
+prob_norm
+
+
+
+```
+
+
+## Q3
+
+Follow a similar process to the notes to make [this plot](https://bwu62.github.io/stat240-revamp/11-inference_files/figure-html/unnamed-chunk-5-1.svg) from section [11.2.3](https://bwu62.github.io/stat240-revamp/sampling-inference.html#heads-v.-n-1) but for die rolls (feel free to copy any code you wish from the examples).
+
+1. Use `sample()` to simulate 10,000 die rolls of a fair 6-sided die. (hint: from the help page, set `x=6`, `size=10000`, `replace=TRUE` to make this work). Check the results look right and save it as a column in a data frame.
+2. Create 2 more columns:
+   - One column is just 1, 2, 3, ..., 9998, 9999, 10000, i.e. the "running count" of number of rolls so far,
+   - The second column is computed as the cumulative sum `cumsum()` of the die rolls divided by the running count you just created. This will give the "running average" so far of the die rolls.
+3. Plot the running average vs the running count with a line plot and see that it should converge to 3.5, the true value of the average.
+4. Add annotations, add a line for the theoretical average of 3.5, and also change the running count of number of rolls to be on a log scale.
+5. Can you get the number of simulations up to 100,000?
+
+```{r}
+
+# 1. Simulating 10,000 rolls
+rolls <- sample(1:6, 10000, replace = TRUE)
+
+# 2. 
+df <- tibble(
+  roll = rolls,
+  roll_number = 1:10000,
+  running_avg = cumsum(rolls) / (1:10000)
+)
+
+# 3 and 4 : plotting running average 
+
+ggplot(df, aes(roll_number, running_avg)) +
+  geom_line(col = "black") +
+  scale_x_log10() +
+  geom_hline(yintercept = 3.5, linetype = 2, col = "red") +
+  labs(title = "Running average of Die Rolls",
+       x = "# of Rolls",
+       y = "Running Average") +
+  annotate("text", x = 100, y = 3.6, label = "Mean = 3.5", col = "red")
+
+# increasing to 100,000 rolls, 
+
+rolls_100k <- sample(1:6, 100000, replace = TRUE)
+df_100k <- tibble(
+  roll = rolls_100k,
+  roll_number = 1:100000,
+  running_avg = cumsum(rolls_100k) / (1:100000)
+)
+```
+

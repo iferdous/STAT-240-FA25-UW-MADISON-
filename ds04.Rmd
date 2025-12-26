@@ -1,0 +1,124 @@
+---
+title: "Discussion 4"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Review notes
+
+For each of the data vis and data transform chapters we covered this past week, again read through the notes and additional examples if you haven't already and run them for more R practice (no need to show work for this)
+
+ - Show an example below in an R chunk for each of the following:
+   1. Using either a dataset we've already used, or something new you find online, make sure it's read in correctly and things are converted. If they're not converted correctly, use mutate on the columns the transform them until they are.
+   2. Practice renaming the columns to something more convenient, then selecting out only a subset of columns you care the most about using both direct specification and selector functions.
+   3. Use mutate to compute at least 1 additional column as a function of other columns (try to make the computation at least somewhat relevant/useful/interesting to the context of the dataset).
+   4. Try to make at least 1 new plot that we covered this week with the dataset. Make sure it's useful and appropriate for the situation!
+   5. Briefly read ahead and preview the summarize function, which we will cover next week.
+
+
+```{r}
+
+
+library(tidyverse)
+
+penguins <- read_csv("penguins.csv")
+
+
+head(penguins)
+
+
+#check the structure:
+
+str(penguins)
+
+
+#  "year" to a categorical factor : 
+
+penguins <- penguins %>%
+  mutate(year = as.factor(year),
+         sex = as.factor(sex),
+         species = as.factor(species),
+         island = as.factor(island))
+
+
+
+
+
+# 2. Rename columns + select subset
+
+penguins_renamed <- penguins %>%
+  rename(
+    bill_length = bill_length_mm,
+    bill_depth  = bill_depth_mm,
+    flipper_len = flipper_length_mm,
+    body_mass   = body_mass_g
+  )
+
+
+# mutate to compute a new column 
+# ex: Compute body mass index = body_mass / flipper_len
+
+penguins_with_bmi <- penguins_renamed %>%
+  mutate(bmi_index = body_mass / flipper_len)
+
+head(penguins_with_bmi)
+
+# Scatter plot: Bill length vs Body mass, colored by species
+ggplot(penguins_with_bmi, aes(x = bill_length, y = body_mass, color = species)) +
+  geom_point(size = 2) +
+  labs(
+    title = "Bill Length vs Body Mass by Penguin Species",
+    x = "Bill Length (mm)",
+    y = "Body Mass (g)",
+    color = "Species"
+  ) +
+  theme_minimal()
+
+
+
+
+# 5. Preview summarize
+penguins_summary <- penguins_with_bmi %>%
+  group_by(species) %>%
+  summarize(
+    avg_bill_length = mean(bill_length),
+    avg_body_mass   = mean(body_mass),
+    avg_bmi_index   = mean(bmi_index),
+    count = n()
+  )
+
+penguins_summary
+
+
+```
+
+
+## Real data exploration
+
+Again, find a dataset (you can reuse one from a previous assignment or lecture if you wish, but you're encouraged to explore a new one!)
+
+Import it in, then do the following:
+
+ - Make sure each column is properly converted into an appropriate type (if not, use a single call to mutate to convert everything).
+ - If there are any necessary data transforms to be done, or interesting additional variables you can derive/compute, you can also mutate that. Explain your choices if you do.
+ - Make some exploratory plots of the data using the NEW plot types we learned this week. Again, try to focus on a small number of most useful plots for visualizing and getting a feel for the dataset.
+ - Try to fine tune your plot more carefully and intentionally, in particular explore these possible modifications to your plots:
+   - Faceting variables
+   - Changing scales to make your plot more readable
+   - Adding further annotations like trend curves/lines, horizontal/vertical lines at points of interest, etc.
+   - Changing themes to something you prefer
+   - If it makes sense, adding some function overlay (e.g. normal curve over an approximately normal histogram
+   As always, briefly explain your choices.
+ - Briefly comment on your plots, identifying anything of interest/concern.

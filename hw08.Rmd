@@ -1,0 +1,188 @@
+---
+title: "Homework 8"
+author: "Ismam Ferdous"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+Each question worth 1 pt, except 3d which is 2pts.
+
+## Q1
+
+You buy a special 6-sided die for a magic trick that's weighted such that getting a 6 is twice as likely as any other number (i.e. P(6) = 2*P(k) for k=1,2...5). Let X be the result of rolling this die once.
+
+1. What is the PMF of X?
+2. Plot the PMF of X.
+3. Find the expectation of X.
+4. Find the variance and SD of X.
+5. Empirically check the E, Var, and SD you just found by simulating drawing a large sample and finding the mean, var, and SD of your sample. (use the `sample()` function with the `prob` argument, see help page or <https://www.r-bloggers.com/2024/03/mastering-random-sampling-in-r-with-the-sample-function> for more info.)
+
+
+```{r}
+ 
+library(tidyverse)
+
+
+# finding the PMF of x :
+
+die_faces <- 1:6
+prob <- rep(1, 6)    # Start with 1 for each face
+prob[6] <- 2         # Make the 6 twice as likely
+prob <- prob / sum(prob) # Normalize so it sums to 1
+
+# create the table : 
+
+pmf_df <- data.frame(Face = die_faces, Probability = prob)
+pmf_df
+
+
+# plotting : 
+barplot(prob,
+        names.arg = die_faces,
+        main = "PMF of Weighted Die",
+        xlab = "Face",
+        ylab = "Probability")
+
+
+# expectations of x : 
+
+expected_value <- sum(die_faces * prob)
+print(expected_value)
+
+
+# var and sd : 
+variance <- sum((die_faces - expected_value)^2 * prob)
+sd_value <- sqrt(variance)
+print(variance)
+print(sd_value)
+
+
+# simulate to check 
+
+samples = sample(1:6, 1e5, replace=TRUE, prob=prob)
+mean(samples)
+var(samples)
+sd(samples)
+
+
+
+
+```
+
+
+
+## Q2
+
+In Sunnyville, all year round on any given day there's a 95% chance it's sunny. Suppose additionally that being sunny and being rainy are mutually exclusive events in Sunnyville on a given day, and that each day's weather is independent of every other day.
+
+1. Specify a binomial RV model for the total number of days of sun in a year.
+2. Show a plot of the PMF. Adjust the range so it shows only outcomes where the probability bar is visible.
+3. What are the EV, Var, and SD of this variable? You can use any formula you like.
+4. According to your model, what is the probability of observing fewer than 10 days of rain in a year?
+5. According to your model, what is the probability of observing fewer than 93% of days of sun in a year?
+
+
+```{r}
+ 
+# specifying : 
+n = 365
+p = 0.95
+
+# plot the pmf : 
+
+x_values = 330:365
+pmf = dbinom(x_values, size=n, prob=p)
+barplot(pmf, names.arg=x_values, main="PMF of Sunny Days", xlab="Number of sunny days", ylab="Probability")
+
+
+# var, sd, expected value : 
+
+EV = n * p
+Var = n * p * (1-p)
+SD = sqrt(Var)
+
+EV  
+Var 
+SD   
+
+# what is the probability of observing fewer than 10 days of rain : 
+
+# atleast 355 
+prob_10_rain = 1 - pbinom(355, size=n, prob=p)
+prob_10_rain
+
+#Probability of Fewer Than 93% Sunny Days
+# - 0.93 × 365 ~ 339.45
+
+prob_less_93_sun = pbinom(339, size=n, prob=p)
+prob_less_93_sun
+
+```
+
+
+## Q3
+
+Recall from section 10.3.1 in the notes the PMF for the sum of rolling a pair of fair 6-sided dice:
+
+    P(X=k)=(6−|k−7|)/36 for k=2,3,...,12
+
+What's the probability of each of the following events?
+
+a. Getting an even sum.
+b. Getting a sum that's not 7.
+c. In 15 rolls, not getting a sum of 7 even once.
+d. In 36 rolls, getting snake eyes (i.e. double 1) at least once. (hint: first find the probability of the opposite, i.e. not getting a single time, then subtract from 1)
+
+
+```{r}
+
+# a. even sum 
+
+pmf = function(k) (6 - abs(k - 7)) / 36
+even_sums = seq(2, 12, 2)
+prob_even_sum = sum(sapply(even_sums, pmf))
+prob_even_sum
+
+
+# b. making sure its not 7 : 
+
+prob_not_7 = 1 - pmf(7)
+prob_not_7
+
+#c. In 15 rolls, not seeing a sum of 7 even once : 
+
+p7 = pmf(7)
+prob_no_7_in15 = (1 - p7)^15
+prob_no_7_in15
+
+#d. snake eyes in 36 rolls : 
+
+# probability of this happening is 1/36 : 
+
+# probability of not getting in 36 rolls (35/36)^36
+
+prob_no_snakeeyes_36 = (35/36)^36
+prob_atleast1_snakeeyes = 1 - prob_no_snakeeyes_36
+prob_atleast1_snakeeyes
+
+
+
+
+
+
+
+
+
+
+```
+

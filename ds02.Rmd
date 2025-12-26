@@ -1,0 +1,143 @@
+---
+title: "Discussion 2"
+author: "NAME HERE"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,fig.width=5,fig.height=4,fig.align="center")
+
+###
+### REMEMBER TO:  1. set your working directory
+###               2. import necessary packages (run line below)
+
+library(tidyverse)
+```
+
+
+## Review vectors
+
+For each of the 4 types of vectors we covered (numerical, logical, character, and date), do the following:
+
+ - If you haven't already, read through the additional notes in the examples and run some of them for more R practice (no need to show work for this)
+ - Show an example below in an R chunk for each of the following:
+   1. A vectorized math expression that takes advantage of recycling
+   2. A logical comparison with a short vector of numeric data (you can make up one if you want)
+   3. Sorting a vector
+   4. Subsetting a vector accordig to some logical condition
+   5. Parsing a vector (converting from one type to another)
+   6. Creating a vector of dates and modifying it with at least 1 operation
+
+```{r}
+
+#1 vecotrized math expression:
+
+vector1 <- c(10, 20, 30, 40)
+
+
+vector2 <- c(2,4) #Shorter vector we will recycle
+
+result_recycle <- vector1 * vector2
+
+result_recycle
+
+
+#2 Logical comparison with a short vector of numeric data 
+
+nums <- c(3, 7, 12, 18)
+nums > 10
+# Goes through the whole vector and compares with 10. 
+
+#3 sorting a vector
+
+my_vector <- c(5,7,8,9,3,2,1)
+sorted_vet <- sort(my_vector)
+sorted_vet
+
+
+#4 Subsetting a vector according to some logic
+
+ages <- c(14, 18, 21, 16, 25)
+adults <- ages[ages >= 18]
+adults
+
+#This will print ages in the vector that are greater than or equal to 18
+
+#5 Parsing a vector according to some logic
+
+char_nums <- c("6", "7", "4", "2")
+numeric_nums <- as.numeric(char_nums)
+numeric_nums
+#This will convert the numbers that are in the vector as characters to actual numeric values. 
+
+#6 Creating a vector of dates and modifying it with one operation 
+
+dates <- as.Date(c("2007-01-16", "2006-10-06", "2013-02-24"))
+
+                 datesPlus6 <- dates + 6 #Adding 7 to each date
+                  datesPlus6
+                 
+              
+```
+
+
+## Real data exploration
+
+Again, find a dataset (you can reuse one from a previous assignment or lecture if you wish, but you're encouraged to explore a new one!)
+
+Import it in, then using $ to access each column as shown in the [subsetting section](https://bwu62.github.io/stat240-revamp/data-frames.html#subsetting-data-frames), see if you can identify any vector operations we have learned thus far as something that might be useful or interesting to run on that column, e.g. mathematical computations, type conversions, logical comparisons, string manipulations, date operations, etc.
+
+Try out some of your ideas, briefly explaining along the way for each operation what you're doing and why. At the end, you can follow the [data frame creation](https://bwu62.github.io/stat240-revamp/data-frames.html#creating-dfs) example to recreate a new, reprocessed data frame from your output vectors.
+
+
+```{r}
+
+#Importing a gas price data set found on kaggle: 
+
+
+gas <- read.csv("gas_prices.csv")
+
+
+head(gas) #Shows us the rows/columns of the data
+
+str(gas) # getting the structure of the data
+
+
+
+
+gas$Year #Gives you all the years of gas that was being recorded.
+
+gas$Italy # gives you all gas prices in Italy over the span of a couple decades.
+
+gas$USA
+
+
+# 1. Basic math: add $0.10 to each price 
+gas$Price_plus_tax <- gas$Canada + 0.10
+
+#after pasting in console make sure to do the variable name so it can actually display
+
+# logical comparisons where gas is over 4 dollars
+
+high_prices <- gas$Price > 4
+sum(high_prices)  # count how many times this happened
+
+
+#at last, creating a new data frame:
+
+
+gas_clean <- data.frame(
+  Year = gas$Year,
+  USA = gas$USA,
+  Italy = gas$Italy,
+  Canada = gas$Canada,
+  Canada_plus_tax = gas$Canada + 0.10   
+)
+
+head(gas_clean)
+
+
+
+```
+
